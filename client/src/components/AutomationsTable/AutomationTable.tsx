@@ -69,9 +69,9 @@ const AutomationTable = (): JSX.Element => {
     <TableBody>
       {automationsData?.data.map((row) => (
         <TableRow key={row.name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-          {Object.values(row).map((value) => (
-            <TableCell key={`${row.name}_${value}`}>{value.toString()}</TableCell>
-          ))}
+         {headers.map((key) => (
+          <TableCell key={`${row.name}_${key}`}>{row[key]?.toString()}</TableCell>
+        ))}
         </TableRow>
       ))}
     </TableBody>
