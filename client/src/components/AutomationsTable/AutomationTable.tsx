@@ -7,7 +7,7 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableContainer from '@mui/material/TableContainer';
 
-import Pagination from '@mui/material/Pagination';
+import TablePagination from '@mui/material/TablePagination';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 
@@ -21,7 +21,7 @@ const AutomationTable = (): JSX.Element => {
     data: [],
     total: 0
   });
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(10);
   const [sortBy, setSortBy] = useState<keyof Automation | ''>('');
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
@@ -39,7 +39,13 @@ const AutomationTable = (): JSX.Element => {
 
   useEffect(() => {
     const fetchAutomationsData = async (): Promise<void> => {
-      const response = await Gateway.getAutomations({ page, limit, sortBy, order });
+      const response = await Gateway.getAutomations({
+        page: page + 1, // server expects 1-based index
+        limit,
+        sortBy,
+        order
+      });
+
       if (response?.data) {
         const { data, total } = response?.data || { data: [], total: 0 };
         setAutomationsData({ data, total });
@@ -47,6 +53,15 @@ const AutomationTable = (): JSX.Element => {
     };
     fetchAutomationsData();
   }, [page, limit, sortBy, order]);
+
+  const handleChangePage = (_event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setLimit(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   const renderTableHeader = (): JSX.Element => (
     <TableHead sx={{ background: 'lightgreen' }}>
@@ -77,37 +92,37 @@ const AutomationTable = (): JSX.Element => {
     </TableBody>
   );
 
-  const totalPages = Math.ceil(automationsData.total / limit);
-
   return (
     <>
-    <Pagination count={totalPages}
-      page={page}
-      onChange={(_, value) => setPage(value)}
-      sx={{ marginTop: 2, display: 'flex', justifyContent: 'center' }}
-    />
-
-    <Select value={limit}
-            onChange={(e) => {
-              setLimit(Number(e.target.value));
-              setPage(1);
-            }}
-            sx={{ marginTop: 2 }}
-          >
-            {[5, 10, 20, 50].map((size) => (
-              <MenuItem key={size} value={size}>
-                {size} per page
-              </MenuItem>
-            ))}
-      </Select>
-
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: '1000px', overflow: 'scroll' }} aria-label="simple table">
           {renderTableHeader()}
           {renderTableBody()}
         </Table>
+        <TablePagination
+          component="div"
+          count={automationsData.total}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={limit}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          rowsPerPageOptions={[10, 20, 50]}
+          sx={{
+            backgroundColor: '#000',
+            color: '#fff',
+            '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': {
+              fontSize: '0.875rem'
+            },
+            '& .MuiSelect-icon': {
+              color: '#fff'
+            },
+            '& .MuiTablePagination-actions svg': {
+              color: '#fff'
+            }
+          }}
+        />
       </TableContainer>
-  </>
+    </>
   );
 };
 
