@@ -23,26 +23,43 @@ const AutomationTable = (): JSX.Element => {
   });
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [total, setTotal] = useState(0);
+  const [sortBy, setSortBy] = useState<keyof Automation | ''>('');
+  const [order, setOrder] = useState<'asc' | 'desc'>('asc');
 
   const headers: (keyof Automation)[] = ['id', 'name', 'status', 'creationTime', 'type'];
 
+  const handleSort = (header: keyof Automation) => {
+    if (sortBy === header) {
+      setOrder(order === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(header);
+      setOrder('asc');
+    }
+  };
+
   useEffect(() => {
     const fetchAutomationsData = async (): Promise<void> => {
-      const response = await Gateway.getAutomations({ page, limit });
+      const response = await Gateway.getAutomations({ page, limit, sortBy, order });
       if (response?.data) {
         const { data, total } = response?.data || { data: [], total: 0 };
         setAutomationsData({ data, total });
       }
     };
     fetchAutomationsData();
-  }, [page, limit]);
+  }, [page, limit, sortBy, order]);
 
   const renderTableHeader = (): JSX.Element => (
     <TableHead sx={{ background: 'lightgreen' }}>
       <TableRow key="table-header" sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
         {headers.map((header) => (
-          <TableCell key={header}>{toTitleCase(header)}</TableCell>
+          <TableCell
+          key={header}
+          onClick={() => handleSort(header)}
+          sx={{ cursor: 'pointer', userSelect: 'none' }}
+        >
+          {toTitleCase(header)}
+          {sortBy === header ? (order === 'asc' ? ' 🔼' : ' 🔽') : null}
+        </TableCell>
         ))}
       </TableRow>
     </TableHead>
