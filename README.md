@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# nocode-pagination
-=======
 # Fullstack task
 
 You are provided with a working application consisting of a backend server and a client-side React table.
@@ -48,4 +45,3 @@ You can see a working example with different data [here](https://drive.google.co
 
 Feel free to ask any questions ;]
 Enjoy!
->>>>>>> 6351b67 (initial commit)
