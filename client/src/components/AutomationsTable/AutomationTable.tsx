@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
-import Paper from '@mui/material/Paper';
-import Table from '@mui/material/Table';
-import TableRow from '@mui/material/TableRow';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableHead from '@mui/material/TableHead';
-import TableContainer from '@mui/material/TableContainer';
-
-import TablePagination from '@mui/material/TablePagination';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
+import {
+  Paper,
+  Table,
+  TableRow,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableContainer,
+  TablePagination,
+  Select,
+  MenuItem
+} from '@mui/material';
 
 import Gateway from '@src/api/gateway';
 import { toTitleCase } from '@src/common/utils';
@@ -23,18 +24,29 @@ const AutomationTable = (): JSX.Element => {
   });
   const [page, setPage] = useState(0);
   const [limit, setLimit] = useState(10);
-  const [sortBy, setSortBy] = useState<keyof Automation | ''>('');
-  const [order, setOrder] = useState<'asc' | 'desc'>('asc');
+  const initialSortBy = (localStorage.getItem('sortBy') || '') as keyof Automation | '';
+  const initialOrder = (localStorage.getItem('order') || 'asc') as 'asc' | 'desc';
+
+  const [sortBy, setSortBy] = useState<keyof Automation | ''>(initialSortBy);
+  const [order, setOrder] = useState<'asc' | 'desc'>(initialOrder);
 
   const headers: (keyof Automation)[] = ['id', 'name', 'status', 'creationTime', 'type'];
 
   const handleSort = (header: keyof Automation) => {
+    let newOrder: 'asc' | 'desc' = 'asc';
+
     if (sortBy === header) {
-      setOrder(order === 'asc' ? 'desc' : 'asc');
+      newOrder = order === 'asc' ? 'desc' : 'asc';
+      setOrder(newOrder);
     } else {
       setSortBy(header);
-      setOrder('asc');
+      newOrder = 'asc';
+      setOrder(newOrder);
     }
+
+    // save to localStorage
+    localStorage.setItem('sortBy', header);
+    localStorage.setItem('order', newOrder);
   };
 
   useEffect(() => {
@@ -94,6 +106,20 @@ const AutomationTable = (): JSX.Element => {
 
   return (
     <>
+      <Select value={limit}
+            onChange={(e) => {
+              setLimit(Number(e.target.value));
+              setPage(1);
+            }}
+            sx={{ marginTop: 2 }}
+          >
+            {[5, 10, 20, 50].map((size) => (
+              <MenuItem key={size} value={size}>
+                {size} per page
+              </MenuItem>
+            ))}
+      </Select>
+
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: '1000px', overflow: 'scroll' }} aria-label="simple table">
           {renderTableHeader()}
