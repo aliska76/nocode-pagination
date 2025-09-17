@@ -23,6 +23,33 @@ The client currently fetches all data at once and displays it in a table with a 
 3. Due to the fact we don't have a real DB here, its ok to do "query" on the json (make it object and get whatever data you need with javascript) even though it's not efficient.
 4. Don't spend time on design and fancy css but it should be reasonable UX.
 
+---
+
+## Pagination Method Used
+
+In the backend, **offset-based pagination** was implemented.  
+This means that the API accepts query parameters `page` and `limit`, calculates the offset as:
+```offset = (page - 1) * limit```
+and returns the correct slice of data using:
+
+- **limit** → how many items per page  
+- **offset** → how many items to skip  
+
+Example request:
+```GET /automations?page=2&limit=10```
+
+This will return items from 11 to 20.
+
+**Pros:**  
+- Simple to implement and understand.  
+- Works well for small to medium datasets.  
+
+**Cons:**  
+- Can be inefficient on very large datasets because the server still needs to skip many records when `page` is large.  
+- For large-scale systems, cursor-based pagination may be more performant.  
+
+---
+
 ## Getting Started
 
 To start the application, please follow these steps:
@@ -42,6 +69,3 @@ To start the application, please follow these steps:
 ### Example
 
 You can see a working example with different data [here](https://drive.google.com/file/d/16733CJ6TFLz36x2wx2jzR-pWnlKHFBE3/view?usp=sharing).
-
-Feel free to ask any questions ;]
-Enjoy!
