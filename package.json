@@ -1,4 +1,7 @@
 {
+    "repository": {
+    "url": "https://github.com/aliska76/nocode-pagination"
+  },
   "devDependencies": {
     "@types/express": "^5.0.3",
     "axios": "^1.11.0",
